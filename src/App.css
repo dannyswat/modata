@@ -1,0 +1,46 @@
+/* ─── Global App Styles ─── */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  background: #f8f9fa;
+}
+
+.canvas {
+  flex: 1;
+  height: 100%;
+  position: relative;
+}
+
+/* ── React Flow overrides ── */
+.react-flow__attribution {
+  display: none !important;
+}
+
+.react-flow__edge {
+  cursor: pointer;
+}
+
+.react-flow__handle {
+  transition: transform 0.15s;
+}
+
+.react-flow__handle:hover {
+  transform: scale(1.5);
+}

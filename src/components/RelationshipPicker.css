@@ -1,0 +1,72 @@
+/* ─── Relationship Picker Modal ─── */
+
+.relationship-picker__overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+}
+
+.relationship-picker {
+  position: fixed;
+  z-index: 1000;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16);
+  padding: 8px;
+  min-width: 240px;
+  animation: picker-in 0.12s ease-out;
+}
+
+@keyframes picker-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.relationship-picker__title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 8px 6px;
+}
+
+.relationship-picker__option {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+}
+
+.relationship-picker__option:hover {
+  background: #eef0ff;
+}
+
+.relationship-picker__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.relationship-picker__desc {
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+}

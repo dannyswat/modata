@@ -1,0 +1,359 @@
+/* ─────────────────────────────────────
+   Entity Node Styles (UML class diagram)
+   ───────────────────────────────────── */
+
+.entity-node {
+  background: #ffffff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  min-width: 220px;
+  max-width: 340px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  overflow: visible;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+.entity-node--selected {
+  border-color: #4f6df5;
+  box-shadow: 0 0 0 2px rgba(79, 109, 245, 0.25), 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Header ── */
+.entity-node__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 6px 6px 0 0;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  position: relative;
+  cursor: default;
+  min-height: 36px;
+}
+
+.entity-node__name {
+  user-select: none;
+  text-align: center;
+  flex: 1;
+}
+
+.entity-node__name-input {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  padding: 2px 6px;
+  outline: none;
+  width: 100%;
+}
+
+.entity-node__name-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ── Color picker button in header ── */
+.entity-node__color-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.entity-node__color-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ── Color picker popover ── */
+.entity-node__color-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9;
+}
+
+.entity-node__color-picker {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.entity-node__color-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s;
+  padding: 0;
+}
+
+.entity-node__color-swatch:hover {
+  transform: scale(1.2);
+}
+
+.entity-node__color-swatch--active {
+  border-color: #1a1a2e;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Fields ── */
+.entity-node__fields {
+  border-top: 1px solid #e5e7eb;
+}
+
+.entity-node__field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+  transition: background 0.12s;
+}
+
+.entity-node__field:hover {
+  background: #f8f9ff;
+}
+
+.entity-node__field--dragging {
+  opacity: 0.4;
+  background: #f0f2ff;
+}
+
+.entity-node__field--drag-over {
+  border-top: 2px solid #4f6df5;
+  padding-top: 3px;
+}
+
+/* ── Drag handle ── */
+.entity-node__field-drag {
+  cursor: grab;
+  color: #ccc;
+  font-size: 12px;
+  line-height: 1;
+  flex-shrink: 0;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+  min-width: 14px;
+  text-align: center;
+}
+
+.entity-node__field:hover .entity-node__field-drag {
+  opacity: 1;
+}
+
+.entity-node__field-drag:hover {
+  color: #4f6df5;
+}
+
+.entity-node__field-drag:active {
+  cursor: grabbing;
+}
+
+.entity-node__field-icon {
+  font-size: 10px;
+  color: #999;
+  min-width: 24px;
+  text-align: center;
+  font-weight: 600;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.entity-node__field-name-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  color: #1a1a2e;
+  padding: 2px 4px;
+  border-radius: 3px;
+  min-width: 0;
+  outline: none;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.entity-node__field-name-input:focus {
+  background: #eef0ff;
+}
+
+.entity-node__field-type-select {
+  border: 1px solid #e0e0e0;
+  background: #f5f5f5;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #555;
+  padding: 2px 4px;
+  outline: none;
+  cursor: pointer;
+  min-width: 72px;
+}
+
+.entity-node__field-type-select:hover {
+  border-color: #bbb;
+}
+
+.entity-node__field-remove {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.entity-node__field:hover .entity-node__field-remove {
+  opacity: 1;
+}
+
+.entity-node__field-remove:hover {
+  color: #ef4444;
+}
+
+/* ── Sub-entity fields ── */
+.entity-node__sub-fields {
+  padding-left: 20px;
+  background: #fafbff;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.entity-node__sub-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-bottom: 1px solid #f5f5f5;
+  position: relative;
+}
+
+.entity-node__sub-field:hover {
+  background: #f0f2ff;
+}
+
+.entity-node__sub-field-icon {
+  color: #bbb;
+  font-size: 14px;
+  min-width: 12px;
+  text-align: center;
+}
+
+.entity-node__add-sub-field {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: #888;
+  font-size: 11px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+.entity-node__add-sub-field:hover {
+  color: #4f6df5;
+  background: #eef0ff;
+}
+
+/* ── Add field button ── */
+.entity-node__add-field {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #999;
+  font-size: 12px;
+  padding: 6px 12px;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 0 0 6px 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.entity-node__add-field:hover {
+  background: #eef0ff;
+  color: #4f6df5;
+}
+
+/* ── Handles ── */
+.entity-node__handle {
+  width: 8px !important;
+  height: 8px !important;
+  border: 2px solid #4f6df5 !important;
+  background: #fff !important;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.entity-node:hover .entity-node__handle,
+.entity-node--selected .entity-node__handle {
+  opacity: 1;
+}
+
+.entity-node__handle--left {
+  left: -5px !important;
+}
+
+.entity-node__handle--right {
+  right: -5px !important;
+}
+
+.entity-node__handle--top {
+  top: -5px !important;
+}
+
+.entity-node__handle--bottom {
+  bottom: -5px !important;
+}
+
+/* ── Node Toolbar ── */
+.entity-node__toolbar {
+  display: flex;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.entity-node__toolbar button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #555;
+  white-space: nowrap;
+}
+
+.entity-node__toolbar button:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
