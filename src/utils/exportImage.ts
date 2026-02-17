@@ -51,18 +51,26 @@ export async function exportPng(
   const pixelRatio = 2;
   const { imageWidth, imageHeight, viewport } = computeExportViewport(nodes, pixelRatio);
 
-  const dataUrl = await toPng(el, {
-    backgroundColor: '#ffffff',
-    pixelRatio,
-    width: imageWidth,
-    height: imageHeight,
-    style: {
-      width: `${imageWidth}px`,
-      height: `${imageHeight}px`,
-      transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
-    },
-  });
-  download(dataUrl, filename);
+  // Add class to hide interactive elements during export
+  document.body.classList.add('exporting');
+
+  try {
+    const dataUrl = await toPng(el, {
+      backgroundColor: '#ffffff',
+      pixelRatio,
+      width: imageWidth,
+      height: imageHeight,
+      style: {
+        width: `${imageWidth}px`,
+        height: `${imageHeight}px`,
+        transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
+      },
+    });
+    download(dataUrl, filename);
+  } finally {
+    // Remove class after export
+    document.body.classList.remove('exporting');
+  }
 }
 
 export async function exportSvg(
@@ -74,15 +82,23 @@ export async function exportSvg(
   const el = getFlowElement();
   const { imageWidth, imageHeight, viewport } = computeExportViewport(nodes);
 
-  const dataUrl = await toSvg(el, {
-    backgroundColor: '#ffffff',
-    width: imageWidth,
-    height: imageHeight,
-    style: {
-      width: `${imageWidth}px`,
-      height: `${imageHeight}px`,
-      transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
-    },
-  });
-  download(dataUrl, filename);
+  // Add class to hide interactive elements during export
+  document.body.classList.add('exporting');
+
+  try {
+    const dataUrl = await toSvg(el, {
+      backgroundColor: '#ffffff',
+      width: imageWidth,
+      height: imageHeight,
+      style: {
+        width: `${imageWidth}px`,
+        height: `${imageHeight}px`,
+        transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
+      },
+    });
+    download(dataUrl, filename);
+  } finally {
+    // Remove class after export
+    document.body.classList.remove('exporting');
+  }
 }

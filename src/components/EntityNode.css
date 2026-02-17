@@ -352,6 +352,13 @@
   color: #bbb;
 }
 
+/* ── Hide interactive elements during export ── */
+.exporting .entity-node__add-field,
+.exporting .entity-node__add-sub-field,
+.exporting .entity-node__enum-add {
+  display: none !important;
+}
+
 /* ── Handles ── */
 .entity-node__handle {
   width: 8px !important;
