@@ -64,6 +64,7 @@ export interface DiagramState {
   setPendingConnection: (connection: Connection | null) => void;
   addRelation: (connection: Connection, relationType: RelationType) => void;
   updateRelationType: (edgeId: string, relationType: RelationType) => void;
+  toggleRelationDirection: (edgeId: string) => void;
   removeRelation: (edgeId: string) => void;
 
   /* diagram actions */
@@ -255,6 +256,15 @@ export const useDiagramStore = create<DiagramState>()(
         edges: s.edges.map((e) =>
           e.id === edgeId
             ? { ...e, data: { ...e.data!, relationType } }
+            : e,
+        ),
+      })),
+
+    toggleRelationDirection: (edgeId) =>
+      set((s) => ({
+        edges: s.edges.map((e) =>
+          e.id === edgeId
+            ? { ...e, data: { ...e.data!, inverted: !e.data?.inverted } }
             : e,
         ),
       })),

@@ -57,6 +57,7 @@ export interface RelationEdgeData {
   [key: string]: unknown;
   relationType: RelationType;
   label?: string;
+  inverted?: boolean; // For oneToMany: if true, target is "one" and source is "many"
 }
 
 /* ─── Serializable diagram schema ─── */

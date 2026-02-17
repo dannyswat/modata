@@ -23,7 +23,9 @@ const RelationshipEdge: React.FC<EdgeProps> = ({
 }) => {
   const edgeData = data as RelationEdgeData | undefined;
   const relationType = edgeData?.relationType ?? 'oneToMany';
+  const inverted = edgeData?.inverted ?? false;
   const updateRelationType = useDiagramStore((s) => s.updateRelationType);
+  const toggleRelationDirection = useDiagramStore((s) => s.toggleRelationDirection);
   const removeRelation = useDiagramStore((s) => s.removeRelation);
 
   const [edgePath, labelX, labelY] = getSmoothStepPath({
@@ -39,13 +41,30 @@ const RelationshipEdge: React.FC<EdgeProps> = ({
   const label = RELATION_LABELS[relationType];
 
   /* Cardinality symbols at endpoints */
-  const sourceSymbol = relationType === 'manyToMany' ? 'N' : '1';
-  const targetSymbol = relationType === 'oneToOne' ? '1' : relationType === 'oneToMany' ? 'N' : 'M';
+  let sourceSymbol = '1';
+  let targetSymbol = '1';
+  
+  if (relationType === 'oneToOne') {
+    sourceSymbol = '1';
+    targetSymbol = '1';
+  } else if (relationType === 'oneToMany') {
+    // Normal: source = 1, target = N
+    // Inverted: source = N, target = 1
+    sourceSymbol = inverted ? 'N' : '1';
+    targetSymbol = inverted ? '1' : 'N';
+  } else if (relationType === 'manyToMany') {
+    sourceSymbol = 'N';
+    targetSymbol = 'M';
+  }
 
   const cycleType = () => {
     const idx = RELATION_TYPES.indexOf(relationType);
     const next = RELATION_TYPES[(idx + 1) % RELATION_TYPES.length];
     updateRelationType(id, next);
+  };
+
+  const swapDirection = () => {
+    toggleRelationDirection(id);
   };
 
   return (
@@ -94,16 +113,31 @@ const RelationshipEdge: React.FC<EdgeProps> = ({
 
         {/* Delete button when selected */}
         {selected && (
-          <div
-            className="relationship-edge__delete"
-            style={{
-              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY + 22}px)`,
-            }}
-            onClick={() => removeRelation(id)}
-            title="Delete relationship"
-          >
-            ×
-          </div>
+          <>
+            <div
+              className="relationship-edge__delete"
+              style={{
+                transform: `translate(-50%, -50%) translate(${labelX}px,${labelY + 22}px)`,
+              }}
+              onClick={() => removeRelation(id)}
+              title="Delete relationship"
+            >
+              ×
+            </div>
+            {/* Swap direction button for oneToMany */}
+            {relationType === 'oneToMany' && (
+              <div
+                className="relationship-edge__swap"
+                style={{
+                  transform: `translate(-50%, -50%) translate(${labelX + 30}px,${labelY + 22}px)`,
+                }}
+                onClick={swapDirection}
+                title="Swap direction (1:N ↔ N:1)"
+              >
+                ⇄
+              </div>
+            )}
+          </>
         )}
       </EdgeLabelRenderer>
     </>

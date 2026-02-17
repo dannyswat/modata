@@ -62,3 +62,25 @@
 .relationship-edge__delete:hover {
   background: #dc2626;
 }
+
+.relationship-edge__swap {
+  position: absolute;
+  background: #4f6df5;
+  color: #fff;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  pointer-events: all;
+  transition: background 0.15s;
+  line-height: 1;
+  font-weight: bold;
+}
+
+.relationship-edge__swap:hover {
+  background: #3b5de7;
+}
