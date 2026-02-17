@@ -86,12 +86,12 @@ const Sidebar: React.FC = () => {
   }, [loadDiagramToStore, fitView]);
 
   const handleExportPng = useCallback(() => {
-    exportPng(`${diagramName.replace(/\s+/g, '-').toLowerCase()}.png`);
-  }, [diagramName]);
+    exportPng(`${diagramName.replace(/\s+/g, '-').toLowerCase()}.png`, nodes);
+  }, [diagramName, nodes]);
 
   const handleExportSvg = useCallback(() => {
-    exportSvg(`${diagramName.replace(/\s+/g, '-').toLowerCase()}.svg`);
-  }, [diagramName]);
+    exportSvg(`${diagramName.replace(/\s+/g, '-').toLowerCase()}.svg`, nodes);
+  }, [diagramName, nodes]);
 
   const handleSave = useCallback(() => {
     const schema = toDiagramSchema();

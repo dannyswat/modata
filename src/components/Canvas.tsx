@@ -100,6 +100,7 @@ const CanvasInner: React.FC = () => {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
+        noDragClassName="entity-node__field-drag"
         fitView
         deleteKeyCode={['Backspace', 'Delete']}
         multiSelectionKeyCode="Shift"
