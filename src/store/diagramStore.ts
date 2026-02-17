@@ -183,7 +183,7 @@ export const useDiagramStore = create<DiagramState>()(
         nodes: updateNodeData(s.nodes, nodeId, (d) => ({
           ...d,
           fields: d.fields.map((f) => {
-            if (f.id !== fieldId || typeof f.type === 'string') return f;
+            if (f.id !== fieldId || typeof f.type === 'string' || f.type.kind !== 'sub-entity') return f;
             return {
               ...f,
               type: {
@@ -203,7 +203,7 @@ export const useDiagramStore = create<DiagramState>()(
         nodes: updateNodeData(s.nodes, nodeId, (d) => ({
           ...d,
           fields: d.fields.map((f) => {
-            if (f.id !== parentFieldId || typeof f.type === 'string') return f;
+            if (f.id !== parentFieldId || typeof f.type === 'string' || f.type.kind !== 'sub-entity') return f;
             return {
               ...f,
               type: {
@@ -222,7 +222,7 @@ export const useDiagramStore = create<DiagramState>()(
         nodes: updateNodeData(s.nodes, nodeId, (d) => ({
           ...d,
           fields: d.fields.map((f) => {
-            if (f.id !== parentFieldId || typeof f.type === 'string') return f;
+            if (f.id !== parentFieldId || typeof f.type === 'string' || f.type.kind !== 'sub-entity') return f;
             return {
               ...f,
               type: {

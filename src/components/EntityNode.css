@@ -281,6 +281,54 @@
   background: #eef0ff;
 }
 
+/* ── Enum options ── */
+.entity-node__enum-options {
+  padding-left: 20px;
+  background: #fafbff;
+  border-bottom: 1px solid #f0f0f0;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.entity-node__enum-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.entity-node__enum-option:hover {
+  background: #f0f2ff;
+}
+
+.entity-node__enum-bullet {
+  color: #4f6df5;
+  font-size: 16px;
+  min-width: 12px;
+  text-align: center;
+  line-height: 1;
+}
+
+.entity-node__enum-add {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  padding-top: 6px;
+}
+
+.entity-node__enum-add input {
+  flex: 1;
+}
+
+.entity-node__enum-add button {
+  width: auto;
+  padding: 2px 8px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
 /* ── Add field button ── */
 .entity-node__add-field {
   width: 100%;

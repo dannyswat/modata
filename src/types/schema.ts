@@ -5,6 +5,8 @@ export const PRIMITIVE_TYPES = [
   'decimal',
   'string',
   'boolean',
+  'date',
+  'datetime',
 ] as const;
 
 export type PrimitiveType = (typeof PRIMITIVE_TYPES)[number];
@@ -16,11 +18,18 @@ export interface SubEntityDef {
   fields: FieldDef[];
 }
 
+/* ─── Enum type ─── */
+export interface EnumDef {
+  kind: 'enum';
+  name: string;
+  options: string[];
+}
+
 /* ─── Field definition ─── */
 export interface FieldDef {
   id: string; // unique within entity
   name: string;
-  type: PrimitiveType | SubEntityDef;
+  type: PrimitiveType | SubEntityDef | EnumDef;
   array?: boolean;
   description?: string;
 }

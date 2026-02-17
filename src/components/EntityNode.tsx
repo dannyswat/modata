@@ -17,11 +17,16 @@ const TYPE_ICONS: Record<PrimitiveType, string> = {
   decimal: '1.0',
   string: 'Aa',
   boolean: '✓✗',
+  date: '📅',
+  datetime: '🕒',
 };
 
 function typeIcon(field: FieldDef): string {
   if (typeof field.type === 'string') {
     return TYPE_ICONS[field.type];
+  }
+  if (field.type.kind === 'enum') {
+    return '⊙';
   }
   return '{ }';
 }
@@ -75,6 +80,86 @@ const SubEntityFieldRow: React.FC<{
   );
 };
 
+/* ─── Enum options editor ─── */
+const EnumOptionsEditor: React.FC<{
+  nodeId: string;
+  fieldId: string;
+  options: string[];
+}> = ({ nodeId, fieldId, options }) => {
+  const updateField = useDiagramStore((s) => s.updateField);
+  const [newOption, setNewOption] = useState('');
+
+  const addOption = () => {
+    if (newOption.trim()) {
+      updateField(nodeId, fieldId, {
+        type: { kind: 'enum', name: '', options: [...options, newOption.trim()] },
+      });
+      setNewOption('');
+    }
+  };
+
+  const removeOption = (index: number) => {
+    const newOptions = options.filter((_, i) => i !== index);
+    updateField(nodeId, fieldId, {
+      type: { kind: 'enum', name: '', options: newOptions },
+    });
+  };
+
+  const updateOption = (index: number, value: string) => {
+    const newOptions = [...options];
+    newOptions[index] = value;
+    updateField(nodeId, fieldId, {
+      type: { kind: 'enum', name: '', options: newOptions },
+    });
+  };
+
+  return (
+    <div className="entity-node__enum-options">
+      {options.map((option, idx) => (
+        <div key={idx} className="entity-node__enum-option">
+          <span className="entity-node__enum-bullet">•</span>
+          <input
+            className="entity-node__field-name-input"
+            value={option}
+            onChange={(e) => updateOption(idx, e.target.value)}
+            onMouseDown={(e) => e.stopPropagation()}
+            placeholder="Option value"
+          />
+          <button
+            className="entity-node__field-remove"
+            onClick={() => removeOption(idx)}
+            title="Remove option"
+          >
+            ×
+          </button>
+        </div>
+      ))}
+      <div className="entity-node__enum-add">
+        <input
+          className="entity-node__field-name-input"
+          value={newOption}
+          onChange={(e) => setNewOption(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              addOption();
+            }
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+          placeholder="Add option..."
+        />
+        <button
+          className="entity-node__add-sub-field"
+          onClick={addOption}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          + option
+        </button>
+      </div>
+    </div>
+  );
+};
+
 /* ─── Drag state type ─── */
 interface DragState {
   fromIndex: number;
@@ -95,7 +180,8 @@ const FieldRow: React.FC<{
   const removeField = useDiagramStore((s) => s.removeField);
   const addSubEntityField = useDiagramStore((s) => s.addSubEntityField);
 
-  const isSubEntity = typeof field.type !== 'string';
+  const isSubEntity = typeof field.type !== 'string' && field.type.kind === 'sub-entity';
+  const isEnum = typeof field.type !== 'string' && field.type.kind === 'enum';
   const isDragging = dragState?.fromIndex === index;
   const isDragOver = dragState !== null && dragState.toIndex === index && dragState.fromIndex !== index;
 
@@ -104,6 +190,10 @@ const FieldRow: React.FC<{
       if (value === 'sub-entity') {
         updateField(nodeId, field.id, {
           type: { kind: 'sub-entity', name: field.name, fields: [] },
+        });
+      } else if (value === 'enum') {
+        updateField(nodeId, field.id, {
+          type: { kind: 'enum', name: field.name, options: [] },
         });
       } else {
         updateField(nodeId, field.id, { type: value as PrimitiveType });
@@ -154,7 +244,7 @@ const FieldRow: React.FC<{
         />
         <select
           className="entity-node__field-type-select"
-          value={isSubEntity ? 'sub-entity' : field.type as string}
+          value={isSubEntity ? 'sub-entity' : isEnum ? 'enum' : field.type as string}
           onChange={(e) => handleTypeChange(e.target.value)}
           onMouseDown={(e) => e.stopPropagation()}
         >
@@ -163,6 +253,7 @@ const FieldRow: React.FC<{
               {t}
             </option>
           ))}
+          <option value="enum">enum</option>
           <option value="sub-entity">sub-entity</option>
         </select>
         <button
@@ -180,7 +271,7 @@ const FieldRow: React.FC<{
           style={{ top: 'auto' }}
         />
       </div>
-      {isSubEntity && typeof field.type !== 'string' && (
+      {isSubEntity && typeof field.type !== 'string' && field.type.kind === 'sub-entity' && (
         <div className="entity-node__sub-fields">
           {field.type.fields.map((sf) => (
             <SubEntityFieldRow
@@ -198,6 +289,13 @@ const FieldRow: React.FC<{
             + sub-field
           </button>
         </div>
+      )}
+      {isEnum && typeof field.type !== 'string' && field.type.kind === 'enum' && (
+        <EnumOptionsEditor
+          nodeId={nodeId}
+          fieldId={field.id}
+          options={field.type.options}
+        />
       )}
     </>
   );
@@ -287,7 +385,7 @@ const EntityNodeComponent: React.FC<EntityNodeProps> = ({ id, data, selected }) 
 
       {/* Header */}
       <div
-        className="entity-node__header"
+        className="entity-node__header entity-node-drag-handle"
         style={{ backgroundColor: data.color }}
         onDoubleClick={() => setEditing(true)}
       >
@@ -344,7 +442,7 @@ const EntityNodeComponent: React.FC<EntityNodeProps> = ({ id, data, selected }) 
       )}
 
       {/* Fields */}
-      <div className="entity-node__fields">
+      <div className="entity-node__fields nodrag">
         {data.fields.map((field, idx) => (
           <FieldRow
             key={field.id}
@@ -361,7 +459,7 @@ const EntityNodeComponent: React.FC<EntityNodeProps> = ({ id, data, selected }) 
 
       {/* Add field button */}
       <button
-        className="entity-node__add-field"
+        className="entity-node__add-field nodrag"
         onClick={() => addField(id)}
         onMouseDown={(e) => e.stopPropagation()}
       >
