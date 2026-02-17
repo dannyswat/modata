@@ -76,14 +76,29 @@ const CanvasInner: React.FC = () => {
     [pickerState, addRelation],
   );
 
-  /* Double-click on canvas → add entity */
-  const onPaneDoubleClick = useCallback(
+  /* Double-click on pane (empty space) → add entity */
+  const lastClickTime = useRef<number>(0);
+  const lastClickPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  
+  const onPaneClick = useCallback(
     (event: React.MouseEvent) => {
-      const position = screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
-      addEntity(position);
+      const now = Date.now();
+      const timeDiff = now - lastClickTime.current;
+      const pos = { x: event.clientX, y: event.clientY };
+      const posDiff = Math.abs(pos.x - lastClickPos.current.x) + Math.abs(pos.y - lastClickPos.current.y);
+      
+      // Detect double-click: within 300ms and close position (< 5px movement)
+      if (timeDiff < 300 && posDiff < 5) {
+        const position = screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
+        });
+        addEntity(position);
+        lastClickTime.current = 0; // Reset to avoid triple-click
+      } else {
+        lastClickTime.current = now;
+        lastClickPos.current = pos;
+      }
     },
     [addEntity, screenToFlowPosition],
   );
@@ -96,7 +111,7 @@ const CanvasInner: React.FC = () => {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        onDoubleClick={onPaneDoubleClick}
+        onPaneClick={onPaneClick}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
