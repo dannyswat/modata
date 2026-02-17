@@ -348,6 +348,10 @@
   color: #4f6df5;
 }
 
+.entity-node__field-name-input::placeholder {
+  color: #bbb;
+}
+
 /* ── Handles ── */
 .entity-node__handle {
   width: 8px !important;
