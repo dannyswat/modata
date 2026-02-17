@@ -8,14 +8,18 @@ const ADD_BUTTON_HEIGHT = 34;
 
 function estimateNodeHeight(node: EntityNode): number {
   const fieldCount = (node.data?.fields?.length ?? 0);
-  // Account for sub-entity expanded rows
-  let subFieldRows = 0;
+  // Account for sub-entity expanded rows and enum options
+  let extraRows = 0;
   for (const f of (node.data?.fields ?? [])) {
-    if (typeof f.type !== 'string' && f.type?.fields) {
-      subFieldRows += f.type.fields.length + 1; // +1 for "+ sub-field" button
+    if (typeof f.type !== 'string') {
+      if (f.type.kind === 'sub-entity' && f.type.fields) {
+        extraRows += f.type.fields.length + 1; // +1 for "+ sub-field" button
+      } else if (f.type.kind === 'enum' && f.type.options) {
+        extraRows += f.type.options.length + 1; // +1 for "+ option" input/button
+      }
     }
   }
-  return BASE_NODE_HEIGHT + (fieldCount + subFieldRows) * FIELD_ROW_HEIGHT + ADD_BUTTON_HEIGHT;
+  return BASE_NODE_HEIGHT + (fieldCount + extraRows) * FIELD_ROW_HEIGHT + ADD_BUTTON_HEIGHT;
 }
 
 export type LayoutDirection = 'TB' | 'LR';
