@@ -16,6 +16,7 @@ import RelationshipPicker from './RelationshipPicker';
 import Sidebar from './Sidebar';
 import { useDiagramStore, type EntityNode, type RelationEdge } from '../store/diagramStore';
 import type { RelationType } from '../types/schema';
+import { ModataProvider, useModataProps, type ModataCanvasProps } from '../context/ModataContext';
 
 const nodeTypes = { entity: EntityNodeComponent };
 const edgeTypes = { relationship: RelationshipEdge };
@@ -25,6 +26,8 @@ const defaultEdgeOptions = {
 };
 
 const CanvasInner: React.FC = () => {
+  const { readOnly = false } = useModataProps();
+
   const nodes = useDiagramStore((s) => s.nodes);
   const edges = useDiagramStore((s) => s.edges);
   const onNodesChange = useDiagramStore((s) => s.onNodesChange);
@@ -108,17 +111,19 @@ const CanvasInner: React.FC = () => {
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onPaneClick={onPaneClick}
+        onNodesChange={readOnly ? undefined : onNodesChange}
+        onEdgesChange={readOnly ? undefined : onEdgesChange}
+        onConnect={readOnly ? undefined : onConnect}
+        onPaneClick={readOnly ? undefined : onPaneClick}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
-        nodesDraggable={true}
+        nodesDraggable={!readOnly}
+        nodesConnectable={!readOnly}
+        elementsSelectable={!readOnly}
         noDragClassName="nodrag"
         fitView
-        deleteKeyCode={['Backspace', 'Delete']}
+        deleteKeyCode={readOnly ? [] : ['Backspace', 'Delete']}
         multiSelectionKeyCode="Shift"
         snapToGrid
         snapGrid={[16, 16]}
@@ -140,10 +145,12 @@ const CanvasInner: React.FC = () => {
   );
 };
 
-const Canvas: React.FC = () => (
+const Canvas: React.FC<ModataCanvasProps> = (props) => (
   <ReactFlowProvider>
-    <Sidebar />
-    <CanvasInner />
+    <ModataProvider value={props}>
+      <Sidebar />
+      <CanvasInner />
+    </ModataProvider>
   </ReactFlowProvider>
 );
 

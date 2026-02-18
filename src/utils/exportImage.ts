@@ -9,20 +9,32 @@ function getFlowElement(): HTMLElement {
   return el;
 }
 
-function download(dataUrl: string, filename: string) {
+/** Download a Blob as a file via a temporary link */
+export function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = dataUrl;
+  a.href = url;
   a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function dataUrlToBlob(dataUrl: string): Blob {
+  const [meta, base64] = dataUrl.split(',');
+  const mime = meta.match(/:(.*?);/)?.[1] ?? 'application/octet-stream';
+  const bytes = atob(base64);
+  const arr = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+  return new Blob([arr], { type: mime });
 }
 
 /**
  * Compute image dimensions and viewport transform so that every node fits
  * inside the exported image with a small margin.
  */
-function computeExportViewport(nodes: Node[], pixelRatio: number = 1) {
+function computeExportViewport(nodes: Node[]) {
   const bounds = getNodesBounds(nodes);
 
   // Target image dimensions based on content + padding
@@ -41,17 +53,14 @@ function computeExportViewport(nodes: Node[], pixelRatio: number = 1) {
   return { imageWidth, imageHeight, viewport };
 }
 
-export async function exportPng(
-  filename: string = 'modata-diagram.png',
-  nodes: Node[] = [],
-) {
+/** Generate a PNG Blob of the diagram */
+export async function generatePngBlob(nodes: Node[]): Promise<Blob> {
   if (nodes.length === 0) throw new Error('No nodes to export');
 
   const el = getFlowElement();
   const pixelRatio = 2;
-  const { imageWidth, imageHeight, viewport } = computeExportViewport(nodes, pixelRatio);
+  const { imageWidth, imageHeight, viewport } = computeExportViewport(nodes);
 
-  // Add class to hide interactive elements during export
   document.body.classList.add('exporting');
 
   try {
@@ -66,23 +75,19 @@ export async function exportPng(
         transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
       },
     });
-    download(dataUrl, filename);
+    return dataUrlToBlob(dataUrl);
   } finally {
-    // Remove class after export
     document.body.classList.remove('exporting');
   }
 }
 
-export async function exportSvg(
-  filename: string = 'modata-diagram.svg',
-  nodes: Node[] = [],
-) {
+/** Generate an SVG Blob of the diagram */
+export async function generateSvgBlob(nodes: Node[]): Promise<Blob> {
   if (nodes.length === 0) throw new Error('No nodes to export');
 
   const el = getFlowElement();
   const { imageWidth, imageHeight, viewport } = computeExportViewport(nodes);
 
-  // Add class to hide interactive elements during export
   document.body.classList.add('exporting');
 
   try {
@@ -96,9 +101,26 @@ export async function exportSvg(
         transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
       },
     });
-    download(dataUrl, filename);
+    return dataUrlToBlob(dataUrl);
   } finally {
-    // Remove class after export
     document.body.classList.remove('exporting');
   }
+}
+
+/* ── Legacy convenience wrappers (download directly) ── */
+
+export async function exportPng(
+  filename: string = 'modata-diagram.png',
+  nodes: Node[] = [],
+) {
+  const blob = await generatePngBlob(nodes);
+  downloadBlob(blob, filename);
+}
+
+export async function exportSvg(
+  filename: string = 'modata-diagram.svg',
+  nodes: Node[] = [],
+) {
+  const blob = await generateSvgBlob(nodes);
+  downloadBlob(blob, filename);
 }

@@ -1,6 +1,9 @@
 // Main library entry point for modata
 export { default as ModataCanvas } from './components/Canvas';
 
+// Export context / props type
+export type { ModataCanvasProps } from './context/ModataContext';
+
 // Export types
 export type {
   EntityNodeData,
@@ -29,7 +32,7 @@ export type { DiagramState, EntityNode, RelationEdge } from './store/diagramStor
 // Export utilities
 export { autoLayout } from './utils/layout';
 export type { LayoutDirection } from './utils/layout';
-export { exportPng, exportSvg } from './utils/exportImage';
+export { exportPng, exportSvg, generatePngBlob, generateSvgBlob, downloadBlob } from './utils/exportImage';
 export { exportSchemaJSON, importSchemaJSON } from './utils/serialization';
 export {
   saveDiagram,

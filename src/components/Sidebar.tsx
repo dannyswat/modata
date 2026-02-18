@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { useDiagramStore } from '../store/diagramStore';
 import { autoLayout, type LayoutDirection } from '../utils/layout';
-import { exportPng, exportSvg } from '../utils/exportImage';
+import { generatePngBlob, generateSvgBlob, downloadBlob } from '../utils/exportImage';
 import { exportSchemaJSON, importSchemaJSON } from '../utils/serialization';
 import {
   saveDiagram,
@@ -12,9 +12,22 @@ import {
   deleteDiagram,
   type SavedDiagramMeta,
 } from '../store/persistence';
+import { useModataProps } from '../context/ModataContext';
 import './Sidebar.css';
 
 const Sidebar: React.FC = () => {
+  const {
+    data,
+    onChange,
+    onSave,
+    onExportImage,
+    onExportSvg,
+    onExportJSON,
+    onImport,
+    persistInLocalStorage = true,
+    readOnly = false,
+  } = useModataProps();
+
   const diagramName = useDiagramStore((s) => s.diagramName);
   const setDiagramName = useDiagramStore((s) => s.setDiagramName);
   const nodes = useDiagramStore((s) => s.nodes);
@@ -28,11 +41,14 @@ const Sidebar: React.FC = () => {
   const { fitView } = useReactFlow();
   const [savedDiagrams, setSavedDiagrams] = useState<SavedDiagramMeta[]>([]);
   const [showSaved, setShowSaved] = useState(false);
+  const initialDataLoaded = useRef(false);
 
   /* refresh saved list */
   const refreshSaved = useCallback(() => {
-    setSavedDiagrams(listSavedDiagrams());
-  }, []);
+    if (persistInLocalStorage) {
+      setSavedDiagrams(listSavedDiagrams());
+    }
+  }, [persistInLocalStorage]);
 
   useEffect(() => {
     refreshSaved();
@@ -43,19 +59,39 @@ const Sidebar: React.FC = () => {
     const timer = setTimeout(() => {
       if (nodes.length > 0) {
         const schema = toDiagramSchema();
-        saveDiagram(schema);
-        refreshSaved();
+
+        // Persist to localStorage if enabled
+        if (persistInLocalStorage) {
+          saveDiagram(schema);
+          refreshSaved();
+        }
+
+        // Call onChange callback
+        onChange?.(schema);
       }
     }, 800);
     return () => clearTimeout(timer);
-  }, [nodes, edges, diagramName, toDiagramSchema, refreshSaved]);
+  }, [nodes, edges, diagramName, toDiagramSchema, refreshSaved, persistInLocalStorage, onChange]);
 
-  /* Load last diagram on mount */
+  /* Load initial data on mount */
   useEffect(() => {
-    const last = loadLastDiagram();
-    if (last && last.nodes.length > 0) {
-      loadDiagramToStore(last);
+    if (initialDataLoaded.current) return;
+    initialDataLoaded.current = true;
+
+    // If `data` prop is provided, use it
+    if (data && data.nodes.length > 0) {
+      loadDiagramToStore(data);
       setTimeout(() => fitView({ padding: 0.2 }), 100);
+      return;
+    }
+
+    // Otherwise, try loading from localStorage if enabled
+    if (persistInLocalStorage) {
+      const last = loadLastDiagram();
+      if (last && last.nodes.length > 0) {
+        loadDiagramToStore(last);
+        setTimeout(() => fitView({ padding: 0.2 }), 100);
+      }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -70,12 +106,23 @@ const Sidebar: React.FC = () => {
   );
 
   const handleExportJSON = useCallback(() => {
-    exportSchemaJSON(toDiagramSchema());
-  }, [toDiagramSchema]);
+    const schema = toDiagramSchema();
+    const filename = `${diagramName.replace(/\s+/g, '-').toLowerCase()}.modata.json`;
+    if (onExportJSON) {
+      onExportJSON(schema, filename);
+    } else {
+      exportSchemaJSON(schema);
+    }
+  }, [toDiagramSchema, diagramName, onExportJSON]);
 
   const handleImportJSON = useCallback(async () => {
     try {
-      const schema = await importSchemaJSON();
+      let schema;
+      if (onImport) {
+        schema = await onImport();
+      } else {
+        schema = await importSchemaJSON();
+      }
       loadDiagramToStore(schema);
       setTimeout(() => fitView({ padding: 0.2 }), 100);
     } catch (e: any) {
@@ -83,21 +130,36 @@ const Sidebar: React.FC = () => {
         alert('Failed to import: ' + e.message);
       }
     }
-  }, [loadDiagramToStore, fitView]);
+  }, [loadDiagramToStore, fitView, onImport]);
 
-  const handleExportPng = useCallback(() => {
-    exportPng(`${diagramName.replace(/\s+/g, '-').toLowerCase()}.png`, nodes);
-  }, [diagramName, nodes]);
+  const handleExportPng = useCallback(async () => {
+    const filename = `${diagramName.replace(/\s+/g, '-').toLowerCase()}.png`;
+    const blob = await generatePngBlob(nodes);
+    if (onExportImage) {
+      onExportImage(blob, filename);
+    } else {
+      downloadBlob(blob, filename);
+    }
+  }, [diagramName, nodes, onExportImage]);
 
-  const handleExportSvg = useCallback(() => {
-    exportSvg(`${diagramName.replace(/\s+/g, '-').toLowerCase()}.svg`, nodes);
-  }, [diagramName, nodes]);
+  const handleExportSvg = useCallback(async () => {
+    const filename = `${diagramName.replace(/\s+/g, '-').toLowerCase()}.svg`;
+    const blob = await generateSvgBlob(nodes);
+    if (onExportSvg) {
+      onExportSvg(blob, filename);
+    } else {
+      downloadBlob(blob, filename);
+    }
+  }, [diagramName, nodes, onExportSvg]);
 
   const handleSave = useCallback(() => {
     const schema = toDiagramSchema();
-    saveDiagram(schema);
-    refreshSaved();
-  }, [toDiagramSchema, refreshSaved]);
+    if (persistInLocalStorage) {
+      saveDiagram(schema);
+      refreshSaved();
+    }
+    onSave?.(schema);
+  }, [toDiagramSchema, refreshSaved, persistInLocalStorage, onSave]);
 
   const handleLoadSaved = useCallback(
     (name: string) => {
@@ -144,17 +206,20 @@ const Sidebar: React.FC = () => {
           className="sidebar__input"
           value={diagramName}
           onChange={(e) => setDiagramName(e.target.value)}
+          readOnly={readOnly}
         />
       </div>
 
       {/* Actions */}
-      <div className="sidebar__section">
-        <label className="sidebar__label">Entities</label>
-        <button className="sidebar__btn sidebar__btn--primary" onClick={() => addEntity()}>
-          + Add Entity
-        </button>
-        <p className="sidebar__hint">or double-click the canvas</p>
-      </div>
+      {!readOnly && (
+        <div className="sidebar__section">
+          <label className="sidebar__label">Entities</label>
+          <button className="sidebar__btn sidebar__btn--primary" onClick={() => addEntity()}>
+            + Add Entity
+          </button>
+          <p className="sidebar__hint">or double-click the canvas</p>
+        </div>
+      )}
 
       <div className="sidebar__section">
         <label className="sidebar__label">Layout</label>
@@ -170,38 +235,44 @@ const Sidebar: React.FC = () => {
 
       <div className="sidebar__section">
         <label className="sidebar__label">File</label>
-        <button className="sidebar__btn" onClick={handleNewDiagram}>
-          📄 New Diagram
-        </button>
+        {!readOnly && (
+          <button className="sidebar__btn" onClick={handleNewDiagram}>
+            📄 New Diagram
+          </button>
+        )}
         <button className="sidebar__btn" onClick={handleSave}>
           💾 Save
         </button>
-        <button className="sidebar__btn" onClick={() => setShowSaved(!showSaved)}>
-          📂 Saved Diagrams ({savedDiagrams.length})
-        </button>
+        {persistInLocalStorage && (
+          <>
+            <button className="sidebar__btn" onClick={() => setShowSaved(!showSaved)}>
+              📂 Saved Diagrams ({savedDiagrams.length})
+            </button>
 
-        {showSaved && (
-          <div className="sidebar__saved-list">
-            {savedDiagrams.length === 0 && (
-              <p className="sidebar__hint">No saved diagrams yet</p>
-            )}
-            {savedDiagrams.map((m) => (
-              <div
-                key={m.name}
-                className="sidebar__saved-item"
-                onClick={() => handleLoadSaved(m.name)}
-              >
-                <span className="sidebar__saved-name">{m.name}</span>
-                <button
-                  className="sidebar__saved-delete"
-                  onClick={(e) => handleDeleteSaved(m.name, e)}
-                  title="Delete"
-                >
-                  ×
-                </button>
+            {showSaved && (
+              <div className="sidebar__saved-list">
+                {savedDiagrams.length === 0 && (
+                  <p className="sidebar__hint">No saved diagrams yet</p>
+                )}
+                {savedDiagrams.map((m) => (
+                  <div
+                    key={m.name}
+                    className="sidebar__saved-item"
+                    onClick={() => handleLoadSaved(m.name)}
+                  >
+                    <span className="sidebar__saved-name">{m.name}</span>
+                    <button
+                      className="sidebar__saved-delete"
+                      onClick={(e) => handleDeleteSaved(m.name, e)}
+                      title="Delete"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
 

@@ -49,6 +49,65 @@ The main component that renders the entire diagram editor with sidebar controls.
 <ModataCanvas />
 ```
 
+#### Props (`ModataCanvasProps`)
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `DiagramSchema` | — | Initial diagram data to load on mount (instead of localStorage) |
+| `onChange` | `(schema: DiagramSchema) => void` | — | Called on any diagram change (debounced 800ms) |
+| `onSave` | `(schema: DiagramSchema) => void` | — | Called when the user clicks Save |
+| `onExportImage` | `(blob: Blob, filename: string) => void` | — | Custom PNG export handler (receives a Blob) |
+| `onExportSvg` | `(blob: Blob, filename: string) => void` | — | Custom SVG export handler (receives a Blob) |
+| `onExportJSON` | `(schema: DiagramSchema, filename: string) => void` | — | Custom JSON export handler |
+| `onImport` | `() => Promise<DiagramSchema>` | — | Custom import handler (replaces file picker) |
+| `persistInLocalStorage` | `boolean` | `true` | Enable/disable auto-saving to localStorage |
+| `readOnly` | `boolean` | `false` | Disable all editing (nodes, edges, entity creation) |
+
+#### Server Integration Example
+
+```tsx
+import { ModataCanvas, type DiagramSchema, type ModataCanvasProps } from 'modata';
+import 'modata/styles.css';
+import '@xyflow/react/dist/style.css';
+
+function App() {
+  const handleChange = (schema: DiagramSchema) => {
+    // Auto-sync to server on every change
+    fetch('/api/diagrams/123', {
+      method: 'PUT',
+      body: JSON.stringify(schema),
+    });
+  };
+
+  const handleSave = (schema: DiagramSchema) => {
+    // Explicit save action
+    fetch('/api/diagrams', {
+      method: 'POST',
+      body: JSON.stringify(schema),
+    });
+  };
+
+  const handleExportImage = (blob: Blob, filename: string) => {
+    // Upload PNG to server instead of downloading
+    const formData = new FormData();
+    formData.append('image', blob, filename);
+    fetch('/api/uploads', { method: 'POST', body: formData });
+  };
+
+  return (
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <ModataCanvas
+        data={initialSchemaFromServer}
+        onChange={handleChange}
+        onSave={handleSave}
+        onExportImage={handleExportImage}
+        persistInLocalStorage={false}
+      />
+    </div>
+  );
+}
+```
+
 ### Hooks
 
 #### useDiagramStore
