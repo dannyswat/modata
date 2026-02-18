@@ -1,4 +1,4 @@
-# Modata
+# Modatatool
 
 A visual data modeling diagram tool for React. Create entity-relationship diagrams with an intuitive drag-and-drop interface.
 
@@ -16,18 +16,18 @@ A visual data modeling diagram tool for React. Create entity-relationship diagra
 ## Installation
 
 ```bash
-npm install modata
+npm install modatatool
 # or
-yarn add modata
+yarn add modatatool
 # or
-pnpm add modata
+pnpm add modatatool
 ```
 
 ## Usage
 
 ```tsx
-import { ModataCanvas } from 'modata';
-import 'modata/styles.css';
+import { ModataCanvas } from 'modatatool';
+import 'modatatool/styles.css';
 import '@xyflow/react/dist/style.css';
 
 function App() {
@@ -66,8 +66,8 @@ The main component that renders the entire diagram editor with sidebar controls.
 #### Server Integration Example
 
 ```tsx
-import { ModataCanvas, type DiagramSchema, type ModataCanvasProps } from 'modata';
-import 'modata/styles.css';
+import { ModataCanvas, type DiagramSchema, type ModataCanvasProps } from 'modatatool';
+import 'modatatool/styles.css';
 import '@xyflow/react/dist/style.css';
 
 function App() {
@@ -115,7 +115,7 @@ function App() {
 Access the diagram state and actions:
 
 ```tsx
-import { useDiagramStore } from 'modata';
+import { useDiagramStore } from 'modatatool';
 
 function MyComponent() {
   const nodes = useDiagramStore((s) => s.nodes);
@@ -136,7 +136,7 @@ function MyComponent() {
 #### Auto Layout
 
 ```tsx
-import { autoLayout } from 'modata';
+import { autoLayout } from 'modatatool';
 
 const layoutedNodes = autoLayout(nodes, edges, 'TB'); // 'TB' or 'LR'
 ```
@@ -144,7 +144,7 @@ const layoutedNodes = autoLayout(nodes, edges, 'TB'); // 'TB' or 'LR'
 #### Export
 
 ```tsx
-import { exportPng, exportSvg, exportSchemaJSON } from 'modata';
+import { exportPng, exportSvg, exportSchemaJSON } from 'modatatool';
 
 // Export as PNG
 await exportPng('my-diagram.png', nodes);
@@ -164,7 +164,7 @@ import {
   saveDiagram, 
   loadDiagram, 
   listSavedDiagrams 
-} from 'modata';
+} from 'modatatool';
 
 // Save to localStorage
 saveDiagram(schema);
