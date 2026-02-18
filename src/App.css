@@ -9,7 +9,6 @@
 html, body, #root {
   width: 100%;
   height: 100%;
-  overflow: hidden;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -26,6 +25,125 @@ html, body, #root {
   flex: 1;
   height: 100%;
   position: relative;
+}
+
+/* ──────────────────────────────────────────────
+   Landing Page
+────────────────────────────────────────────── */
+
+.app.landing {
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(140deg, #0f0f1a 0%, #1a1a2e 60%, #16213e 100%);
+  overflow: auto;
+}
+
+.landing-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  padding: 40px 24px;
+  max-width: 560px;
+}
+
+.landing-badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.12);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 999px;
+  padding: 4px 14px;
+}
+
+.landing-title {
+  font-size: clamp(52px, 10vw, 88px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.landing-title-mo {
+  color: #f3f4f6;
+}
+
+.landing-title-data {
+  color: #6c63ff;
+}
+
+.landing-tagline {
+  font-size: 16px;
+  line-height: 1.65;
+  color: #9ca3af;
+  max-width: 400px;
+}
+
+.landing-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-demo {
+  padding: 14px 32px;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6c63ff 0%, #8b5cf6 100%);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(108, 99, 255, 0.45);
+  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.btn-demo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(108, 99, 255, 0.6);
+  filter: brightness(1.08);
+}
+
+.btn-demo:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e5e7eb;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.landing-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.landing-features li {
+  font-size: 14px;
+  color: #6b7280;
 }
 
 /* ── React Flow overrides ── */

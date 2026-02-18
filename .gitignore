@@ -6,6 +6,7 @@ pnpm-debug.log
 
 # Build outputs
 dist/
+dist_demo/
 build/
 *.tsbuildinfo
 
