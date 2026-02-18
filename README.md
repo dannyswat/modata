@@ -63,6 +63,60 @@ The main component that renders the entire diagram editor with sidebar controls.
 | `persistInLocalStorage` | `boolean` | `true` | Enable/disable auto-saving to localStorage |
 | `readOnly` | `boolean` | `false` | Disable all editing (nodes, edges, entity creation) |
 
+#### Ref API (`ModataCanvasRef`)
+
+You can pass a `ref` to `ModataCanvas` to programmatically trigger exports and retrieve the diagram schema from an external component.
+
+```tsx
+import { useRef } from 'react';
+import { ModataCanvas, type ModataCanvasRef } from 'modatatool';
+import 'modatatool/styles.css';
+import '@xyflow/react/dist/style.css';
+
+function App() {
+  const canvasRef = useRef<ModataCanvasRef>(null);
+
+  const handleExportPng = async () => {
+    const blob = await canvasRef.current!.exportPng();
+    // Do something with the PNG blob (upload, display, etc.)
+  };
+
+  const handleExportSvg = async () => {
+    const blob = await canvasRef.current!.exportSvg();
+    // Do something with the SVG blob
+  };
+
+  const handleExportJSON = () => {
+    const json = canvasRef.current!.exportJSON();
+    console.log(json); // JSON string of the diagram schema
+  };
+
+  const handleGetSchema = () => {
+    const schema = canvasRef.current!.getSchema();
+    // DiagramSchema object
+  };
+
+  return (
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <div>
+        <button onClick={handleExportPng}>Export PNG</button>
+        <button onClick={handleExportSvg}>Export SVG</button>
+        <button onClick={handleExportJSON}>Export JSON</button>
+        <button onClick={handleGetSchema}>Get Schema</button>
+      </div>
+      <ModataCanvas ref={canvasRef} />
+    </div>
+  );
+}
+```
+
+| Method | Return Type | Description |
+|--------|-------------|-------------|
+| `getSchema()` | `DiagramSchema` | Returns the current diagram schema object |
+| `exportPng()` | `Promise<Blob>` | Generates and returns a PNG blob of the diagram |
+| `exportSvg()` | `Promise<Blob>` | Generates and returns an SVG blob of the diagram |
+| `exportJSON()` | `string` | Returns the diagram schema as a formatted JSON string |
+
 #### Server Integration Example
 
 ```tsx

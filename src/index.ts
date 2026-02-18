@@ -1,5 +1,6 @@
 // Main library entry point for modata
 export { default as ModataCanvas } from './components/Canvas';
+export type { ModataCanvasRef } from './components/Canvas';
 
 // Export context / props type
 export type { ModataCanvasProps } from './context/ModataContext';

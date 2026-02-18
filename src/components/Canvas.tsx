@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -17,6 +17,20 @@ import Sidebar from './Sidebar';
 import { useDiagramStore, type EntityNode, type RelationEdge } from '../store/diagramStore';
 import type { RelationType } from '../types/schema';
 import { ModataProvider, useModataProps, type ModataCanvasProps } from '../context/ModataContext';
+import { generatePngBlob, generateSvgBlob } from '../utils/exportImage';
+import type { DiagramSchema } from '../types/schema';
+
+/** Imperative handle exposed via ref on ModataCanvas */
+export interface ModataCanvasRef {
+  /** Get the current diagram schema */
+  getSchema: () => DiagramSchema;
+  /** Generate a PNG blob of the current diagram */
+  exportPng: () => Promise<Blob>;
+  /** Generate an SVG blob of the current diagram */
+  exportSvg: () => Promise<Blob>;
+  /** Get the current diagram schema as a JSON string */
+  exportJSON: () => string;
+}
 
 const nodeTypes = { entity: EntityNodeComponent };
 const edgeTypes = { relationship: RelationshipEdge };
@@ -25,7 +39,7 @@ const defaultEdgeOptions = {
   type: 'relationship',
 };
 
-const CanvasInner: React.FC = () => {
+const CanvasInner = forwardRef<ModataCanvasRef>((_props, ref) => {
   const { readOnly = false } = useModataProps();
 
   const nodes = useDiagramStore((s) => s.nodes);
@@ -34,6 +48,15 @@ const CanvasInner: React.FC = () => {
   const onEdgesChange = useDiagramStore((s) => s.onEdgesChange);
   const addEntity = useDiagramStore((s) => s.addEntity);
   const addRelation = useDiagramStore((s) => s.addRelation);
+  const toDiagramSchema = useDiagramStore((s) => s.toDiagramSchema);
+
+  /* ── Imperative handle for external consumers ── */
+  useImperativeHandle(ref, () => ({
+    getSchema: () => toDiagramSchema(),
+    exportPng: () => generatePngBlob(nodes),
+    exportSvg: () => generateSvgBlob(nodes),
+    exportJSON: () => JSON.stringify(toDiagramSchema(), null, 2),
+  }), [nodes, toDiagramSchema]);
 
   const [pickerState, setPickerState] = useState<{
     connection: Connection;
@@ -143,15 +166,19 @@ const CanvasInner: React.FC = () => {
       )}
     </div>
   );
-};
+});
 
-const Canvas: React.FC<ModataCanvasProps> = (props) => (
+CanvasInner.displayName = 'CanvasInner';
+
+const Canvas = forwardRef<ModataCanvasRef, ModataCanvasProps>((props, ref) => (
   <ReactFlowProvider>
     <ModataProvider value={props}>
       <Sidebar />
-      <CanvasInner />
+      <CanvasInner ref={ref} />
     </ModataProvider>
   </ReactFlowProvider>
-);
+));
+
+Canvas.displayName = 'ModataCanvas';
 
 export default Canvas;

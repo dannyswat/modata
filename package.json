@@ -1,6 +1,6 @@
 {
   "name": "modatatool",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Visual data modeling diagram tool - React component for creating entity relationship diagrams",
   "type": "module",
   "main": "./dist/modata.umd.cjs",
