@@ -1,17 +1,49 @@
 {
-  "name": "modata",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Visual data modeling diagram tool",
+  "name": "modatatool",
+  "version": "0.1.0",
+  "description": "Visual data modeling diagram tool - React component for creating entity relationship diagrams",
   "type": "module",
+  "main": "./dist/modata.umd.cjs",
+  "module": "./dist/modata.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/modata.js",
+      "require": "./dist/modata.umd.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./styles.css": "./dist/style.css"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:lib": "tsc && vite build --config vite.lib.config.ts",
     "preview": "vite preview"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "react",
+    "diagram",
+    "data-modeling",
+    "entity-relationship",
+    "erd",
+    "database-design",
+    "schema",
+    "visualization"
+  ],
+  "author": "Dannys Wat",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dannyswat/modata.git"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
   "dependencies": {
     "@dagrejs/dagre": "^2.0.4",
     "@xyflow/react": "^12.10.0",
@@ -27,6 +59,7 @@
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^5.1.4",
     "typescript": "^5.9.3",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vite-plugin-dts": "^4.3.0"
   }
 }

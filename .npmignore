@@ -1,0 +1,37 @@
+# Source files (only include compiled dist/ folder)
+src/
+public/
+index.html
+
+# Config files
+vite.config.ts
+vite.lib.config.ts
+tsconfig.json
+vite-env.d.ts
+
+# Development
+node_modules/
+.env
+.env.local
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts (exclude demo build, only include library)
+.cache/
+coverage/
+*.tmp
+.turbo/
+
+# Git
+.git/
+.gitignore
