@@ -18,6 +18,7 @@ import { useDiagramStore, type EntityNode, type RelationEdge } from '../store/di
 import type { RelationType } from '../types/schema';
 import { ModataProvider, useModataProps, type ModataCanvasProps } from '../context/ModataContext';
 import { generatePngBlob, generateSvgBlob } from '../utils/exportImage';
+import { serializeSchemaToPlainText } from '../utils/serialization';
 import type { DiagramSchema } from '../types/schema';
 
 /** Imperative handle exposed via ref on ModataCanvas */
@@ -30,6 +31,8 @@ export interface ModataCanvasRef {
   exportSvg: () => Promise<Blob>;
   /** Get the current diagram schema as a JSON string */
   exportJSON: () => string;
+  /** Get the current diagram schema as formatted plain text */
+  exportPlainText: () => string;
 }
 
 const nodeTypes = { entity: EntityNodeComponent };
@@ -56,6 +59,7 @@ const CanvasInner = forwardRef<ModataCanvasRef>((_props, ref) => {
     exportPng: () => generatePngBlob(nodes),
     exportSvg: () => generateSvgBlob(nodes),
     exportJSON: () => JSON.stringify(toDiagramSchema(), null, 2),
+    exportPlainText: () => serializeSchemaToPlainText(toDiagramSchema()),
   }), [nodes, toDiagramSchema]);
 
   const [pickerState, setPickerState] = useState<{

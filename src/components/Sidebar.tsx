@@ -3,7 +3,12 @@ import { useReactFlow } from '@xyflow/react';
 import { useDiagramStore } from '../store/diagramStore';
 import { autoLayout, type LayoutDirection } from '../utils/layout';
 import { generatePngBlob, generateSvgBlob, downloadBlob } from '../utils/exportImage';
-import { exportSchemaJSON, importSchemaJSON } from '../utils/serialization';
+import {
+  copySchemaPlainTextToClipboard,
+  exportSchemaJSON,
+  importSchemaJSON,
+  serializeSchemaToPlainText,
+} from '../utils/serialization';
 import {
   saveDiagram,
   loadDiagram,
@@ -23,6 +28,7 @@ const Sidebar: React.FC = () => {
     onExportImage,
     onExportSvg,
     onExportJSON,
+    onExportClipboard,
     onImport,
     persistInLocalStorage = true,
     readOnly = false,
@@ -41,7 +47,20 @@ const Sidebar: React.FC = () => {
   const { fitView } = useReactFlow();
   const [savedDiagrams, setSavedDiagrams] = useState<SavedDiagramMeta[]>([]);
   const [showSaved, setShowSaved] = useState(false);
+  const [clipboardStatus, setClipboardStatus] = useState<string | null>(null);
   const initialDataLoaded = useRef(false);
+  const clipboardStatusTimer = useRef<number | null>(null);
+
+  const showClipboardStatus = useCallback((message: string) => {
+    setClipboardStatus(message);
+    if (clipboardStatusTimer.current !== null) {
+      window.clearTimeout(clipboardStatusTimer.current);
+    }
+    clipboardStatusTimer.current = window.setTimeout(() => {
+      setClipboardStatus(null);
+      clipboardStatusTimer.current = null;
+    }, 2400);
+  }, []);
 
   /* refresh saved list */
   const refreshSaved = useCallback(() => {
@@ -53,6 +72,14 @@ const Sidebar: React.FC = () => {
   useEffect(() => {
     refreshSaved();
   }, [refreshSaved]);
+
+  useEffect(() => {
+    return () => {
+      if (clipboardStatusTimer.current !== null) {
+        window.clearTimeout(clipboardStatusTimer.current);
+      }
+    };
+  }, []);
 
   /* Auto-save on changes (debounced) */
   useEffect(() => {
@@ -114,6 +141,24 @@ const Sidebar: React.FC = () => {
       exportSchemaJSON(schema);
     }
   }, [toDiagramSchema, diagramName, onExportJSON]);
+
+  const handleExportClipboard = useCallback(async () => {
+    const schema = toDiagramSchema();
+    const text = serializeSchemaToPlainText(schema);
+
+    try {
+      if (onExportClipboard) {
+        await onExportClipboard(text);
+      } else {
+        await copySchemaPlainTextToClipboard(schema);
+      }
+
+      showClipboardStatus('Plain text copied to clipboard');
+    } catch (e: any) {
+      showClipboardStatus('Clipboard export failed');
+      alert('Failed to copy plain text: ' + (e?.message ?? 'Unknown error'));
+    }
+  }, [toDiagramSchema, onExportClipboard, showClipboardStatus]);
 
   const handleImportJSON = useCallback(async () => {
     try {
@@ -284,12 +329,16 @@ const Sidebar: React.FC = () => {
         <button className="sidebar__btn" onClick={handleImportJSON}>
           📥 Import JSON
         </button>
+        <button className="sidebar__btn" onClick={handleExportClipboard}>
+          📋 Export to Clipboard
+        </button>
         <button className="sidebar__btn" onClick={handleExportPng}>
           🖼 Export PNG
         </button>
         <button className="sidebar__btn" onClick={handleExportSvg}>
           📐 Export SVG
         </button>
+        {clipboardStatus && <p className="sidebar__hint">{clipboardStatus}</p>}
       </div>
 
       {/* Entity list */}

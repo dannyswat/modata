@@ -8,7 +8,7 @@ A visual data modeling diagram tool for React. Create entity-relationship diagra
 - 🔄 Multiple relationship types (1:1, 1:N, N:M)
 - 📦 Sub-entities and enum types support
 - 🎯 Auto-layout with configurable directions
-- 💾 Import/Export schemas (JSON, PNG, SVG)
+- 💾 Import/Export schemas (JSON, plain text, PNG, SVG)
 - 🎨 Customizable entity colors
 - 📱 Responsive and touch-friendly
 - 💪 TypeScript support
@@ -59,6 +59,7 @@ The main component that renders the entire diagram editor with sidebar controls.
 | `onExportImage` | `(blob: Blob, filename: string) => void` | — | Custom PNG export handler (receives a Blob) |
 | `onExportSvg` | `(blob: Blob, filename: string) => void` | — | Custom SVG export handler (receives a Blob) |
 | `onExportJSON` | `(schema: DiagramSchema, filename: string) => void` | — | Custom JSON export handler |
+| `onExportClipboard` | `(text: string) => void \| Promise<void>` | — | Custom plain-text/clipboard export handler |
 | `onImport` | `() => Promise<DiagramSchema>` | — | Custom import handler (replaces file picker) |
 | `persistInLocalStorage` | `boolean` | `true` | Enable/disable auto-saving to localStorage |
 | `readOnly` | `boolean` | `false` | Disable all editing (nodes, edges, entity creation) |
@@ -91,6 +92,11 @@ function App() {
     console.log(json); // JSON string of the diagram schema
   };
 
+  const handleExportPlainText = () => {
+    const text = canvasRef.current!.exportPlainText();
+    console.log(text); // Plain-text summary of the diagram schema
+  };
+
   const handleGetSchema = () => {
     const schema = canvasRef.current!.getSchema();
     // DiagramSchema object
@@ -102,6 +108,7 @@ function App() {
         <button onClick={handleExportPng}>Export PNG</button>
         <button onClick={handleExportSvg}>Export SVG</button>
         <button onClick={handleExportJSON}>Export JSON</button>
+        <button onClick={handleExportPlainText}>Export Plain Text</button>
         <button onClick={handleGetSchema}>Get Schema</button>
       </div>
       <ModataCanvas ref={canvasRef} />
@@ -116,6 +123,7 @@ function App() {
 | `exportPng()` | `Promise<Blob>` | Generates and returns a PNG blob of the diagram |
 | `exportSvg()` | `Promise<Blob>` | Generates and returns an SVG blob of the diagram |
 | `exportJSON()` | `string` | Returns the diagram schema as a formatted JSON string |
+| `exportPlainText()` | `string` | Returns the diagram schema as formatted plain text |
 
 #### Server Integration Example
 
@@ -198,7 +206,7 @@ const layoutedNodes = autoLayout(nodes, edges, 'TB'); // 'TB' or 'LR'
 #### Export
 
 ```tsx
-import { exportPng, exportSvg, exportSchemaJSON } from 'modatatool';
+import { exportPng, exportSvg, exportSchemaJSON, serializeSchemaToPlainText } from 'modatatool';
 
 // Export as PNG
 await exportPng('my-diagram.png', nodes);
@@ -209,6 +217,9 @@ await exportSvg('my-diagram.svg', nodes);
 // Export schema as JSON
 const schema = useDiagramStore.getState().toDiagramSchema();
 exportSchemaJSON(schema);
+
+// Export schema as formatted plain text
+const text = serializeSchemaToPlainText(schema);
 ```
 
 #### Persistence

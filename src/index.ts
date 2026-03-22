@@ -34,7 +34,12 @@ export type { DiagramState, EntityNode, RelationEdge } from './store/diagramStor
 export { autoLayout } from './utils/layout';
 export type { LayoutDirection } from './utils/layout';
 export { exportPng, exportSvg, generatePngBlob, generateSvgBlob, downloadBlob } from './utils/exportImage';
-export { exportSchemaJSON, importSchemaJSON } from './utils/serialization';
+export {
+  exportSchemaJSON,
+  importSchemaJSON,
+  serializeSchemaToPlainText,
+  copySchemaPlainTextToClipboard,
+} from './utils/serialization';
 export {
   saveDiagram,
   loadDiagram,

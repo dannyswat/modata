@@ -45,6 +45,13 @@ export interface ModataCanvasProps {
   onExportJSON?: (schema: DiagramSchema, filename: string) => void;
 
   /**
+   * Custom handler for clipboard/plain-text export.
+   * Receives the formatted plain-text representation of the diagram.
+   * If not provided, the text is copied directly to the clipboard.
+   */
+  onExportClipboard?: (text: string) => void | Promise<void>;
+
+  /**
    * Custom handler for JSON import.
    * If provided, called instead of opening a file picker.
    * Should return a Promise resolving to a DiagramSchema.
